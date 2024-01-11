@@ -1,4 +1,4 @@
-package me.example.testplugin.loader;
+package me.rafaelka.regionmobs.loader;
 
 import com.google.gson.Gson;
 import io.papermc.paper.plugin.loader.PluginClasspathBuilder;

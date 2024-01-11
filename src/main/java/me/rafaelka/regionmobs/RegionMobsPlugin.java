@@ -1,9 +1,9 @@
-package me.example.testplugin;
+package me.rafaelka.regionmobs;
 
 import org.bukkit.plugin.java.JavaPlugin;
 import org.spongepowered.configurate.ConfigurateException;
 
-public class TestPlugin extends JavaPlugin {
+public class RegionMobsPlugin extends JavaPlugin {
 
     @Override
     public void onEnable() {
