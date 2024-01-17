@@ -1,3 +1,10 @@
+/*
+ * Copyright (c) 2024 DenaryDev
+ *
+ * Use of this source code is governed by an MIT-style
+ * license that can be found in the LICENSE file or at
+ * https://opensource.org/licenses/MIT.
+ */
 package me.rafaelka.regionmobs.loader;
 
 import com.google.gson.Gson;
@@ -18,6 +25,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Stream;
 
+/**
+ * @author DenaryDev
+ * @since 1:53 12.01.2024
+ */
 @SuppressWarnings({"UnstableApiUsage", "unused"})
 public class PluginLibrariesLoader implements PluginLoader {
     @Override

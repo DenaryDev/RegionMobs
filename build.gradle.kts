@@ -5,6 +5,7 @@ plugins {
     id("java")
     id("xyz.jpenilla.run-paper") version "2.2.0"
     id("net.minecrell.plugin-yml.paper") version "0.6.0"
+    id("io.papermc.paperweight.userdev") version "1.5.11"
 }
 
 group = "me.rafaelka"
@@ -17,10 +18,11 @@ repositories {
 }
 
 dependencies {
-    compileOnly("io.papermc.paper:paper-api:1.20.2-R0.1-SNAPSHOT")
+    paperweight.paperDevBundle("1.20.2-R0.1-SNAPSHOT")
 
     val crystalVersion = "2.1.0"
     library("me.denarydev.crystal.paper:utils:$crystalVersion")
+    library("me.denarydev.crystal.paper:serializers:$crystalVersion")
     library("me.denarydev.crystal.shared:config:$crystalVersion")
 }
 
@@ -36,39 +38,16 @@ paper {
 
     generateLibrariesJson = true
 
-    foliaSupported = true
-
     apiVersion = "1.20"
 
     authors = listOf("RafaelkaUwU")
 
     defaultPermission = BukkitPluginDescription.Permission.Default.OP
 
-    serverDependencies {
-        register("WorldGuard") {
-            load = net.minecrell.pluginyml.paper.PaperPluginDescription.RelativeLoadOrder.BEFORE
-        }
-    }
-
     permissions {
         register("regionmobs.admin") {
-            children = listOf(
-                "regionmobs.about",
-                "regionmobs.reload",
-            )
+            description = "Admin permission"
         }
-        register("regionmobs.about") {
-            description = "Allows you to reload plugin"
-        }
-        register("regionmobs.reload") {
-            description = "Allows you to reload plugin"
-        }
-    }
-}
-
-runPaper {
-    folia {
-        registerTask()
     }
 }
 
@@ -87,6 +66,10 @@ tasks {
         options.isFork = true
     }
 
+    assemble {
+        dependsOn(reobfJar)
+    }
+
     processResources {
         filteringCharset = Charsets.UTF_8.name()
     }
@@ -98,11 +81,9 @@ tasks {
 
         // See https://github.com/jpenilla/run-task/wiki/Basic-Usage#downloading-plugins for more info
         downloadPlugins {
-            // Don't download these plugins on Folia because they don't support Folia.
-            if (this@configureEach.name == "runServer") {
-                url("https://download.luckperms.net/1529/bukkit/loader/LuckPerms-Bukkit-5.4.116.jar")
-                url("https://repo.extendedclip.com/content/repositories/placeholderapi/me/clip/placeholderapi/2.11.5/placeholderapi-2.11.5.jar")
-            }
+            url("https://download.luckperms.net/1529/bukkit/loader/LuckPerms-Bukkit-5.4.116.jar")
+            url("https://ci.athion.net/job/FastAsyncWorldEdit/637/artifact/artifacts/FastAsyncWorldEdit-Bukkit-2.8.4.jar")
+            url("https://ci.lucko.me/job/spark/400/artifact/spark-bukkit/build/libs/spark-1.10.59-bukkit.jar")
         }
     }
 }
