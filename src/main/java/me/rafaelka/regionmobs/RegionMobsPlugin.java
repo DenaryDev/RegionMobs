@@ -81,6 +81,10 @@ public class RegionMobsPlugin extends JavaPlugin {
         return particleManager;
     }
 
+    public SpawnManager spawnManager() {
+        return spawnManager;
+    }
+
     public @NotNull Logger logger() {
         return super.getSLF4JLogger();
     }

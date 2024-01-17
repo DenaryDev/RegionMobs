@@ -50,6 +50,7 @@ public class Disable extends Command {
 
                 region.enabled(false);
                 if (saveFailed(source, region)) return 1;
+                plugin.spawnManager().removeRegion(region.id());
 
                 sendMessage(source, Settings.messages().commands.disable.success, Placeholder.unparsed("id", region.id()));
 

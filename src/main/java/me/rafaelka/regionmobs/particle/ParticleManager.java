@@ -10,7 +10,6 @@ package me.rafaelka.regionmobs.particle;
 import com.destroystokyo.paper.ParticleBuilder;
 import me.rafaelka.regionmobs.RegionMobsPlugin;
 import me.rafaelka.regionmobs.Settings;
-import me.rafaelka.regionmobs.region.Region;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitTask;
@@ -25,7 +24,6 @@ import java.util.List;
 public class ParticleManager {
     private final RegionMobsPlugin plugin;
     private final List<Player> shown = new ArrayList<>();
-    private final List<Region> regions = new ArrayList<>();
     private BukkitTask task;
 
     public ParticleManager(RegionMobsPlugin plugin) {
@@ -33,9 +31,6 @@ public class ParticleManager {
     }
 
     public void load() {
-        regions.clear();
-        regions.addAll(plugin.regionManager().regions().values());
-
         task = Bukkit.getScheduler().runTaskTimer(plugin, this::pointsParticleTask, 20, Settings.main().particles.interval);
     }
 
@@ -45,6 +40,7 @@ public class ParticleManager {
     }
 
     private void pointsParticleTask() {
+        final var regions = plugin.regionManager().regions().values();
         if (shown.isEmpty()) return;
         final var particle = Settings.main().particles.type;
 

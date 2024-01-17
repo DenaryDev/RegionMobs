@@ -33,12 +33,20 @@ public class SpawnManager {
         this.regions.clear();
         this.regions.addAll(plugin.regionManager().regions().values().stream().filter(Region::enabled).map(SpawnRegion::new).toList());
         task = Bukkit.getScheduler().runTaskTimer(plugin, () ->
-            regions.forEach(SpawnRegion::spawnMobs), 20L, Settings.main().mobSpawn.interval);
+            new ArrayList<>(regions).forEach(SpawnRegion::spawnMobs), 20L, Settings.main().mobSpawn.interval);
     }
 
     public void unload() {
         if (task != null)
             task.cancel();
         regions.forEach(SpawnRegion::despawnAll);
+    }
+
+    public void addRegion(Region region) {
+        if (region.enabled()) regions.add(new SpawnRegion(region));
+    }
+
+    public void removeRegion(String id) {
+        regions.removeIf(spawnRegion -> spawnRegion.id().equals(id));
     }
 }

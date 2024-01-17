@@ -55,6 +55,7 @@ public class Enable extends Command {
 
                 region.enabled(true);
                 if (saveFailed(source, region)) return 1;
+                plugin.spawnManager().addRegion(region);
 
                 sendMessage(source, Settings.messages().commands.enable.success, Placeholder.unparsed("id", region.id()));
 

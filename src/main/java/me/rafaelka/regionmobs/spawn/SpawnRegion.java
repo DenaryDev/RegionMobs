@@ -26,13 +26,19 @@ import java.util.concurrent.ThreadLocalRandom;
  */
 public class SpawnRegion {
     private static final ThreadLocalRandom RANDOM = ThreadLocalRandom.current();
+    private final String id;
     private final List<SpawnPoint> spawnPoints = new ArrayList<>();
     private final List<SpawnPoint> despawnNextTick = new ArrayList<>();
     private final List<EntityType> entityTypes = new ArrayList<>();
 
     public SpawnRegion(@NotNull Region region) {
+        this.id = region.id();
         this.spawnPoints.addAll(region.points().stream().map(SpawnPoint::new).toList());
         this.entityTypes.addAll(region.mobs());
+    }
+
+    public String id() {
+        return id;
     }
 
     public void spawnMobs() {
