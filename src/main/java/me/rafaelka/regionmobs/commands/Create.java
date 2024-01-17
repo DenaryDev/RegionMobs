@@ -55,15 +55,11 @@ public class Create extends Command {
                     return 1;
                 }
 
-                final var click = miniMessage(Settings.messages().commands.create.click,
-                    Placeholder.unparsed("id", id),
-                    Placeholder.unparsed("label", "rmobs")
-                )
+                final var click = miniMessage(Settings.messages().commands.create.click, Placeholder.unparsed("id", id))
                     .hoverEvent(miniMessage(Settings.messages().commands.create.clickHover))
                     .clickEvent(ClickEvent.clickEvent(ClickEvent.Action.RUN_COMMAND, "/rmobs edit " + id));
                 sendMessage(source, Settings.messages().commands.create.success,
                     Placeholder.unparsed("id", id),
-                    Placeholder.unparsed("label", "rmobs"),
                     Placeholder.component("click", click)
                 );
 

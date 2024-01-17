@@ -43,7 +43,7 @@ public class Settings {
     public static final class Main {
         @Comment("Настройки появления мобов в областях")
         public MobSpawn mobSpawn = new MobSpawn();
-        @Comment("Настройки частиц, отображаемых командой /rmobs particle")
+        @Comment("Настройки частиц, отображаемых командой /rmobs particles")
         public Particles particles = new Particles();
 
         @ConfigSerializable
@@ -149,10 +149,10 @@ public class Settings {
             @ConfigSerializable
             public static final class Create {
                 public String info = "Создаёт область появления мобов";
-                public String success = "<prefix>Вы создали регион <yellow><id><white>! Команды для настройки: <yellow><click><white>, после настройки включите область командой <yellow>/<label> enable <id><white>.";
-                public String error = "<prefix>Не удалось создать область, в консоли больше информации об этом.";
-                public String exists = "<prefix>Регион с таким ID уже существует.";
-                public String click = "<u>/<label> edit <id></u>";
+                public String success = "<prefix>Вы создали область <yellow><id><white>! Команды для настройки: <yellow><click><white>, после настройки включите область командой <yellow>/rmobs enable <id><white>.";
+                public String error = "<prefix>Не удалось создать область из-за непредвиденной ошибки, в консоли больше информации об этом.";
+                public String exists = "<prefix>Область с таким ID уже существует.";
+                public String click = "<u>/rmobs edit <id></u>";
                 public String clickHover = "<gray>Нажмите, чтобы показать команды";
             }
 
@@ -160,34 +160,34 @@ public class Settings {
             public static final class Delete {
                 public String info = "Удаляет область появления мобов";
                 public String success = "<prefix>Область <yellow><id><white> успешно удалена.";
-                public String error = "<prefix>Не удалось полностью удалить область <yellow><id><white>, в консоли может быть больше информации.";
+                public String error = "<prefix>Не удалось удалить область из-за непредвиденной ошибки, в консоли больше информации об этом.";
             }
 
             @ConfigSerializable
             public static final class Enable {
                 public String info = "Включает появление мобов в области";
                 public String success = "<prefix>Появление мобов в области <yellow><id><white> включено.";
-                public String already = "<prefix>Появление мобов в области <yellow><id><white> уже включено.";
-                public String incomplete = "<prefix>Чтобы включить появление мобов, нужно полностью настроить регион.";
+                public String already = "<prefix>В области <yellow><id><white> уже включено появление мобов.";
+                public String incomplete = "<prefix>Чтобы включить появление мобов, нужно полностью настроить область, используйте <yellow>/rmobs edit <id><white> для просмотра команд настройки области.";
             }
 
             @ConfigSerializable
             public static final class Disable {
                 public String info = "Отключает появление мобов в области";
                 public String success = "<prefix>Появление мобов в области <yellow><id><white> отключено.";
-                public String already = "<prefix>Появление мобов в области <yellow><id><white> уже отключено.";
+                public String already = "<prefix>В области <yellow><id><white> уже отключено появление мобов.";
             }
 
             @ConfigSerializable
             public static final class Particles {
-                public String info = "Переключает отображение частиц над точками появления мобов вокруг вас";
-                public String shown = "<prefix>Частицы над точками появления мобов показаны.";
-                public String hidden = "<prefix>Частицы над точками появления мобов скрыты.";
+                public String info = "Переключает отображение частиц над точками появления мобов";
+                public String shown = "<prefix>Частицы над точками появления мобов <green>показаны<white>.";
+                public String hidden = "<prefix>Частицы над точками появления мобов <red>скрыты<white>.";
             }
 
             @ConfigSerializable
             public static final class Edit {
-                public String info = "Выводит команды, необходимые для настройки региона.";
+                public String info = "Выводит команды, необходимые для настройки области.";
                 public World world = new World();
                 public Point point = new Point();
                 public Mob mob = new Mob();
