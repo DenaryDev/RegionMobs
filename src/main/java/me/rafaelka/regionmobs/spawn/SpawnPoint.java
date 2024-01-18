@@ -9,6 +9,7 @@ package me.rafaelka.regionmobs.spawn;
 
 import org.bukkit.Location;
 import org.bukkit.NamespacedKey;
+import org.bukkit.entity.Ageable;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.persistence.PersistentDataType;
@@ -29,8 +30,12 @@ public class SpawnPoint {
         this.location = location;
     }
 
-    public void spawn(@NotNull EntityType type) {
+    public void spawn(@NotNull EntityType type, boolean allowBabies) {
         entity = location.getWorld().spawnEntity(location, type);
+
+        if (!allowBabies && entity instanceof Ageable ageable && !ageable.isAdult()) {
+            ageable.setAdult();
+        }
 
         final var container = entity.getPersistentDataContainer();
         container.set(SPAWNED_MOB, PersistentDataType.BOOLEAN, true);
@@ -55,5 +60,10 @@ public class SpawnPoint {
 
     public Location location() {
         return location;
+    }
+
+    @Nullable
+    public Location entityLocation() {
+        return entity != null ? entity.getLocation() : null;
     }
 }

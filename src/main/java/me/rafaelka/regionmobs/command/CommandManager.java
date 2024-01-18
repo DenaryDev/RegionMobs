@@ -15,7 +15,6 @@ import me.rafaelka.regionmobs.commands.Disable;
 import me.rafaelka.regionmobs.commands.Enable;
 import me.rafaelka.regionmobs.commands.Particles;
 import me.rafaelka.regionmobs.commands.Reload;
-import me.rafaelka.regionmobs.commands.edit.EditWorld;
 import me.rafaelka.regionmobs.commands.edit.mob.MobAdd;
 import me.rafaelka.regionmobs.commands.edit.mob.MobList;
 import me.rafaelka.regionmobs.commands.edit.mob.MobRemove;
@@ -49,8 +48,6 @@ public class CommandManager {
         commands.add(new Disable());
         commands.add(new Particles());
         commands.add(new HelpEdit());
-        // World
-        commands.add(new EditWorld());
         // Point
         commands.add(new PointAdd());
         commands.add(new PointRemove());

@@ -8,12 +8,10 @@
 package me.rafaelka.regionmobs.region;
 
 import me.rafaelka.regionmobs.RegionMobsPlugin;
+import me.rafaelka.regionmobs.Settings;
 import me.rafaelka.regionmobs.utils.Utils;
-import org.bukkit.Bukkit;
 import org.bukkit.Location;
-import org.bukkit.World;
 import org.bukkit.entity.EntityType;
-import org.jetbrains.annotations.Nullable;
 import org.spongepowered.configurate.CommentedConfigurationNode;
 import org.spongepowered.configurate.ConfigurateException;
 import org.spongepowered.configurate.hocon.HoconConfigurationLoader;
@@ -32,18 +30,51 @@ import java.util.stream.Collectors;
 @ConfigSerializable
 public class Region {
     private transient String id;
-    private transient World world;
     private transient HoconConfigurationLoader loader;
     private transient CommentedConfigurationNode node;
 
     @Comment("Активирован ли регион")
     private boolean enabled = false;
-    @Comment("Мир, в котором расположена область")
-    private String worldName = "";
     @Comment("Точки, на которых появляются мобы")
     private List<Location> points = new ArrayList<>();
     @Comment("Типы мобов, которые появляются")
     private List<EntityType> mobs = new ArrayList<>();
+    @Comment("Настройки появления мобов в этой области")
+    private SpawnSettings spawnSettings = new SpawnSettings();
+
+    @ConfigSerializable
+    public static final class SpawnSettings {
+        @Comment("Минимальный размер пачки мобов по умолчанию.\nЕсли -1, используется значение из основного конфига.")
+        private int minCapSize = -1;
+        @Comment("Максимальный размер пачки мобов по умолчанию.\nЕсли -1, используется значение из основного конфига.")
+        private int maxCapSize = -1;
+        @Comment("Если расстояние между мобом и игроком больше этого значения, моб деспавнится.\nЕсли -1, используется значение из основного конфига.")
+        private int despawnDistance = -1;
+        @Comment("Радиус области вокруг игрока, в которой могут появляться мобы.\nЕсли -1, используется значение из основного конфига.")
+        private int maxDistance = -1;
+        @Comment("Будут ли появляться детёныши мобов.\nУдалите, чтобы сбросить до значения из основного конфига.")
+        public boolean allowBabies = Settings.main().mobSpawn.allowBabies;
+
+        public int minCapSize() {
+            return minCapSize > 0 ? minCapSize : Settings.main().mobSpawn.minCapSize;
+        }
+
+        public int maxCapSize() {
+            return maxCapSize > 0 ? maxCapSize : Settings.main().mobSpawn.maxCapSize;
+        }
+
+        public int despawnDistance() {
+            return despawnDistance > 0 ? despawnDistance : Settings.main().mobSpawn.despawnDistance;
+        }
+
+        public int maxDistance() {
+            return maxDistance > 0 ? maxDistance : Settings.main().mobSpawn.maxDistance;
+        }
+
+        public boolean spawnBabies() {
+            return allowBabies;
+        }
+    }
 
     boolean set(String id, HoconConfigurationLoader loader, CommentedConfigurationNode node) {
         this.id = id;
@@ -53,12 +84,6 @@ public class Region {
     }
 
     private boolean update() {
-        if (!worldName.isEmpty()) {
-            world = Bukkit.getWorld(worldName);
-            if (world == null) {
-                RegionMobsPlugin.instance().logger().warn("World " + worldName + " for region " + id + " not found!");
-            }
-        }
         if (enabled && incomplete()) {
             enabled = false;
             RegionMobsPlugin.instance().logger().warn("Region " + id + " is not completed, disabling...");
@@ -85,7 +110,7 @@ public class Region {
     }
 
     public boolean incomplete() {
-        return world == null || points.isEmpty() || mobs.isEmpty();
+        return points.isEmpty() || mobs.isEmpty();
     }
 
     public boolean enabled() {
@@ -94,15 +119,6 @@ public class Region {
 
     public void enabled(boolean enabled) {
         this.enabled = enabled;
-    }
-
-    public World world() {
-        return world;
-    }
-
-    public void world(@Nullable World world) {
-        this.world = world;
-        this.worldName = world != null ? world.getName() : "";
     }
 
     public List<Location> points() {
@@ -135,5 +151,9 @@ public class Region {
 
     public void removeMob(EntityType mob) {
         this.mobs.remove(mob);
+    }
+
+    public SpawnSettings spawnSettings() {
+        return spawnSettings;
     }
 }

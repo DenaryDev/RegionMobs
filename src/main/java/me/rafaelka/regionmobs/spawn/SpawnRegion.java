@@ -8,7 +8,6 @@
 package me.rafaelka.regionmobs.spawn;
 
 import me.rafaelka.regionmobs.RegionMobsPlugin;
-import me.rafaelka.regionmobs.Settings;
 import me.rafaelka.regionmobs.region.Region;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -26,19 +25,19 @@ import java.util.concurrent.ThreadLocalRandom;
  */
 public class SpawnRegion {
     private static final ThreadLocalRandom RANDOM = ThreadLocalRandom.current();
-    private final String id;
+    private final Region region;
     private final List<SpawnPoint> spawnPoints = new ArrayList<>();
     private final List<SpawnPoint> despawnNextTick = new ArrayList<>();
     private final List<EntityType> entityTypes = new ArrayList<>();
 
     public SpawnRegion(@NotNull Region region) {
-        this.id = region.id();
+        this.region = region;
         this.spawnPoints.addAll(region.points().stream().map(SpawnPoint::new).toList());
         this.entityTypes.addAll(region.mobs());
     }
 
     public String id() {
-        return id;
+        return region.id();
     }
 
     public void spawnMobs() {
@@ -47,7 +46,7 @@ public class SpawnRegion {
 
     private void spawnMobsAsync(int aliveAmount) {
         spawnPoints.forEach(point -> {
-            if (point.alive() && !playersNearby(point.location(), Settings.main().mobSpawn.despawnDistance))
+            if (point.alive() && !playersNearby(point.entityLocation(), region.spawnSettings().despawnDistance()))
                 despawnNextTick.add(point);
         });
 
@@ -55,13 +54,13 @@ public class SpawnRegion {
         final var diff = limit - aliveAmount;
         if (diff <= 0) return;
 
-        final var max = Math.min(Settings.main().mobSpawn.maxCapSize, diff);
-        final var amount = max > Settings.main().mobSpawn.minCapSize ? RANDOM.nextInt(Settings.main().mobSpawn.minCapSize, max) : max;
+        final var max = Math.min(region.spawnSettings().maxCapSize(), diff);
+        final var amount = max > region.spawnSettings().minCapSize() ? RANDOM.nextInt(region.spawnSettings().minCapSize(), max) : max;
 
         final var points = randomPointsNoMobs(amount);
         Bukkit.getScheduler().runTask(RegionMobsPlugin.instance(), () ->
             points.forEach(point -> {
-                point.spawn(entityTypes.get(RANDOM.nextInt(entityTypes.size())));
+                point.spawn(entityTypes.get(RANDOM.nextInt(entityTypes.size())), region.spawnSettings().allowBabies);
                 spawnPoints.add(point);
             })
         );
@@ -75,6 +74,7 @@ public class SpawnRegion {
     }
 
     private boolean playersNearby(Location location, int distance) {
+        if (location == null) return false;
         return Bukkit.getOnlinePlayers().stream().anyMatch(player -> player.getLocation().distance(location) <= distance);
     }
 
@@ -85,7 +85,7 @@ public class SpawnRegion {
         for (int i = 0; i < copy.size(); i++) {
             final var index = RANDOM.nextInt(copy.size());
             final var point = copy.remove(index);
-            if (!point.alive() && playersNearby(point.location(), Settings.main().mobSpawn.maxDistance)) {
+            if (!point.alive() && playersNearby(point.location(), region.spawnSettings().maxDistance())) {
                 spawnPoints.remove(point);
                 result.add(point);
                 if (result.size() == size) break;
