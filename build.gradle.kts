@@ -8,7 +8,7 @@ plugins {
     id("io.papermc.paperweight.userdev") version "1.5.11"
 }
 
-group = "me.rafaelka"
+group = "me.denarydev"
 version = "1.0.0"
 
 repositories {
@@ -33,14 +33,14 @@ java {
 }
 
 paper {
-    main = "me.rafaelka.regionmobs.RegionMobsPlugin"
-    loader = "me.rafaelka.regionmobs.loader.PluginLibrariesLoader"
+    main = "me.denarydev.regionmobs.RegionMobsPlugin"
+    loader = "me.denarydev.regionmobs.loader.PluginLibrariesLoader"
 
     generateLibrariesJson = true
 
     apiVersion = "1.20"
 
-    authors = listOf("RafaelkaUwU")
+    authors = listOf("DenaryDev")
 
     defaultPermission = BukkitPluginDescription.Permission.Default.OP
 
