@@ -8,25 +8,30 @@
 package me.denarydev.regionmobs.command;
 
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
-import me.denarydev.regionmobs.commands.Create;
-import me.denarydev.regionmobs.commands.Enable;
-import me.denarydev.regionmobs.commands.edit.mob.MobAdd;
-import me.denarydev.regionmobs.commands.edit.point.PointAdd;
+import com.mojang.brigadier.tree.CommandNode;
+import me.denarydev.regionmobs.RegionMobsPlugin;
 import me.denarydev.regionmobs.commands.Command;
+import me.denarydev.regionmobs.commands.Create;
 import me.denarydev.regionmobs.commands.Delete;
 import me.denarydev.regionmobs.commands.Disable;
+import me.denarydev.regionmobs.commands.Enable;
 import me.denarydev.regionmobs.commands.Particles;
 import me.denarydev.regionmobs.commands.Reload;
+import me.denarydev.regionmobs.commands.edit.mob.MobAdd;
 import me.denarydev.regionmobs.commands.edit.mob.MobList;
 import me.denarydev.regionmobs.commands.edit.mob.MobRemove;
+import me.denarydev.regionmobs.commands.edit.point.PointAdd;
 import me.denarydev.regionmobs.commands.edit.point.PointRemove;
-import me.denarydev.regionmobs.commands.help.HelpEdit;
 import me.denarydev.regionmobs.commands.help.HelpAll;
+import me.denarydev.regionmobs.commands.help.HelpEdit;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.server.MinecraftServer;
+import org.bukkit.Bukkit;
+import org.bukkit.craftbukkit.v1_20_R2.command.VanillaCommandWrapper;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 import static net.minecraft.commands.Commands.literal;
 
@@ -58,17 +63,23 @@ public class CommandManager {
     }
 
     public void registerCommands() {
-        final var dispatcher = MinecraftServer.getServer().getCommands().getDispatcher();
+        final var builder = literal("regionmobs");
+        registerSubCommands(builder, commands);
 
-        final var cmd = literal("regionmobs");
-        registerSubCommands(cmd, commands);
-
-        final var node = dispatcher.register(cmd);
-        dispatcher.register(literal("rmobs").redirect(node));
+        final var node = registerBrigadierCommand(builder);
+        registerBrigadierCommand(literal("rmobs").redirect(node));
     }
 
     public List<Command> commands() {
         return commands;
+    }
+
+    private CommandNode<CommandSourceStack> registerBrigadierCommand(LiteralArgumentBuilder<CommandSourceStack> builder) {
+        final var nmsCommands = MinecraftServer.getServer().getCommands();
+        final var command = nmsCommands.getDispatcher().register(builder);
+        final var wrapper = new VanillaCommandWrapper(nmsCommands, command);
+        Bukkit.getServer().getCommandMap().register(RegionMobsPlugin.instance().getName().toLowerCase(Locale.ROOT), wrapper);
+        return command;
     }
 
     private void registerSubCommands(LiteralArgumentBuilder<CommandSourceStack> builder, List<Command> commands) {
