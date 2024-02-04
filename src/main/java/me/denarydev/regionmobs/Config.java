@@ -102,6 +102,7 @@ public class Config {
         @ConfigSerializable
         public static final class Commands {
             public Help help = new Help();
+            public About about = new About();
             public Reload reload = new Reload();
             public Create create = new Create();
             public Delete delete = new Delete();
@@ -140,6 +141,19 @@ public class Config {
                         public String inactive = "<gray><b>";
                     }
                 }
+            }
+
+            @ConfigSerializable
+            public static final class About {
+                public String info = "Показывает информацию о плагине";
+                public String success = """
+                <prefix>Информация о плагине:
+                <white>Версия: <yellow><version>
+                <white>Платформа: <yellow><platform>
+                <white>Создатель: <yellow><author>
+                <white>Дата и время сборки: <yellow><build_time>
+                <white>Информация о сборке: <yellow>git-<commit> <white>в ветке <yellow><branch>
+                """;
             }
 
             @ConfigSerializable

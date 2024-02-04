@@ -3,9 +3,12 @@ import xyz.jpenilla.runpaper.task.RunServer
 
 plugins {
     id("java")
+    id("idea")
     id("xyz.jpenilla.run-paper") version "2.2.0"
     id("net.minecrell.plugin-yml.paper") version "0.6.0"
     id("io.papermc.paperweight.userdev") version "1.5.11"
+    id("org.ajoberstar.grgit") version "5.2.1"
+    id("net.kyori.blossom") version "2.1.0"
 }
 
 group = "me.denarydev"
@@ -49,6 +52,25 @@ paper {
             description = "Admin permission"
         }
     }
+}
+
+sourceSets {
+    main {
+        blossom {
+            javaSources {
+                property("version", rootProject.version.toString())
+                property("build_time", System.currentTimeMillis().toString())
+                property("git_branch", grgit.branch.current().name)
+                property("git_commit", shortCommit())
+            }
+        }
+    }
+}
+
+fun shortCommit(): String {
+    val clean = grgit.status().isClean
+    val commit = grgit.head().abbreviatedId
+    return commit + (if (clean) "" else "-dirty")
 }
 
 tasks {

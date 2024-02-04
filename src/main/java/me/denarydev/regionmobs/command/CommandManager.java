@@ -10,6 +10,7 @@ package me.denarydev.regionmobs.command;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.tree.CommandNode;
 import me.denarydev.regionmobs.RegionMobsPlugin;
+import me.denarydev.regionmobs.commands.About;
 import me.denarydev.regionmobs.commands.Command;
 import me.denarydev.regionmobs.commands.Create;
 import me.denarydev.regionmobs.commands.Delete;
@@ -46,6 +47,7 @@ public class CommandManager {
     public CommandManager() {
         // Root
         commands.add(new HelpAll());
+        commands.add(new About());
         commands.add(new Reload());
         commands.add(new Create());
         commands.add(new Delete());
