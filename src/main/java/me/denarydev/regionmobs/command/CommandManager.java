@@ -68,20 +68,13 @@ public class CommandManager {
         final var builder = literal("regionmobs");
         registerSubCommands(builder, commands);
 
-        final var node = registerBrigadierCommand(builder);
-        registerBrigadierCommand(literal("rmobs").redirect(node));
+        final var wrapper = new VanillaCommandWrapper(MinecraftServer.getServer().getCommands(), builder.build());
+        wrapper.setAliases(List.of("rmobs"));
+        Bukkit.getServer().getCommandMap().register(RegionMobsPlugin.instance().getName().toLowerCase(Locale.ROOT), wrapper);
     }
 
     public List<Command> commands() {
         return commands;
-    }
-
-    private CommandNode<CommandSourceStack> registerBrigadierCommand(LiteralArgumentBuilder<CommandSourceStack> builder) {
-        final var nmsCommands = MinecraftServer.getServer().getCommands();
-        final var command = nmsCommands.getDispatcher().register(builder);
-        final var wrapper = new VanillaCommandWrapper(nmsCommands, command);
-        Bukkit.getServer().getCommandMap().register(RegionMobsPlugin.instance().getName().toLowerCase(Locale.ROOT), wrapper);
-        return command;
     }
 
     private void registerSubCommands(LiteralArgumentBuilder<CommandSourceStack> builder, List<Command> commands) {
