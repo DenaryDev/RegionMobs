@@ -4,10 +4,10 @@ import xyz.jpenilla.runpaper.task.RunServer
 plugins {
     id("java")
     id("idea")
-    id("xyz.jpenilla.run-paper") version "2.2.0"
+    id("xyz.jpenilla.run-paper") version "2.2.3"
     id("net.minecrell.plugin-yml.paper") version "0.6.0"
-    id("io.papermc.paperweight.userdev") version "1.5.11"
-    id("org.ajoberstar.grgit") version "5.2.1"
+    id("io.papermc.paperweight.userdev") version "1.5.13"
+    id("org.ajoberstar.grgit") version "5.2.2"
     id("net.kyori.blossom") version "2.1.0"
 }
 
@@ -23,7 +23,7 @@ repositories {
 dependencies {
     paperweight.paperDevBundle("1.20.2-R0.1-SNAPSHOT")
 
-    val crystalVersion = "2.1.0"
+    val crystalVersion = "2.1.1"
     library("me.denarydev.crystal.paper:utils:$crystalVersion")
     library("me.denarydev.crystal.paper:serializers:$crystalVersion")
     library("me.denarydev.crystal.shared:config:$crystalVersion")
