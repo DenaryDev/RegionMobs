@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 DenaryDev
+ * Copyright (c) 2026 DenaryDev
  *
  * Use of this source code is governed by an MIT-style
  * license that can be found in the LICENSE file or at
@@ -23,7 +23,7 @@ import java.util.concurrent.ThreadLocalRandom;
  * @author DenaryDev
  * @since 3:48 17.01.2024
  */
-public class SpawnRegion {
+public final class SpawnRegion {
     private static final ThreadLocalRandom RANDOM = ThreadLocalRandom.current();
     private final Region region;
     private final List<SpawnPoint> spawnPoints = new ArrayList<>();
@@ -37,7 +37,7 @@ public class SpawnRegion {
     }
 
     public String id() {
-        return region.id();
+        return this.region.id();
     }
 
     public void spawnMobs() {
@@ -45,56 +45,63 @@ public class SpawnRegion {
     }
 
     private void spawnMobsAsync(int aliveAmount) {
-        spawnPoints.forEach(point -> {
-            if (point.alive() && !playersNearby(point.entityLocation(), region.spawnSettings().despawnDistance()))
-                despawnNextTick.add(point);
+        this.spawnPoints.forEach(point -> {
+            if (point.alive() && !playersNearby(point.entityLocation(), this.region.spawnSettings().despawnDistance())) {
+                this.despawnNextTick.add(point);
+            }
         });
 
-        final var limit = spawnPoints.size();
-        final var diff = limit - aliveAmount;
+        final int limit = this.spawnPoints.size();
+        final int diff = limit - aliveAmount;
         if (diff <= 0) return;
 
-        final var max = Math.min(region.spawnSettings().maxCapSize(), diff);
-        final var amount = max > region.spawnSettings().minCapSize() ? RANDOM.nextInt(region.spawnSettings().minCapSize(), max) : max;
+        final int max = Math.min(this.region.spawnSettings().maxCapSize(), diff);
+        final int amount = max > this.region.spawnSettings().minCapSize() ? RANDOM.nextInt(this.region.spawnSettings().minCapSize(), max) : max;
 
-        final var points = randomPointsNoMobs(amount);
+        final List<SpawnPoint> points = randomPointsNoMobs(amount);
         Bukkit.getScheduler().runTask(RegionMobsPlugin.instance(), () ->
             points.forEach(point -> {
-                point.spawn(entityTypes.get(RANDOM.nextInt(entityTypes.size())), region.spawnSettings().allowBabies);
-                spawnPoints.add(point);
+                point.spawn(this.entityTypes.get(RANDOM.nextInt(this.entityTypes.size())), this.region.spawnSettings().allowBabies);
+                this.spawnPoints.add(point);
             })
         );
     }
 
     private int alivePointsAmount() {
-        despawnNextTick.forEach(SpawnPoint::despawn);
-        despawnNextTick.clear();
-        spawnPoints.forEach(SpawnPoint::validate);
-        return (int) spawnPoints.stream().filter(SpawnPoint::alive).count();
+        this.despawnNextTick.forEach(SpawnPoint::despawn);
+        this.despawnNextTick.clear();
+        this.spawnPoints.forEach(SpawnPoint::validate);
+
+        return (int) this.spawnPoints.stream().filter(SpawnPoint::alive).count();
     }
 
     private boolean playersNearby(Location location, int distance) {
         if (location == null) return false;
+
         return Bukkit.getOnlinePlayers().stream().anyMatch(player -> player.getLocation().distance(location) <= distance);
     }
 
     @NotNull
     private List<SpawnPoint> randomPointsNoMobs(int size) {
-        final var copy = new ArrayList<>(spawnPoints);
-        final var result = new ArrayList<SpawnPoint>();
+        final List<SpawnPoint> copy = new ArrayList<>(this.spawnPoints);
+        final List<SpawnPoint> result = new ArrayList<>();
+
         for (int i = 0; i < copy.size(); i++) {
-            final var index = RANDOM.nextInt(copy.size());
-            final var point = copy.remove(index);
-            if (!point.alive() && playersNearby(point.location(), region.spawnSettings().maxDistance())) {
-                spawnPoints.remove(point);
+            final int index = RANDOM.nextInt(copy.size());
+            final SpawnPoint point = copy.remove(index);
+
+            if (!point.alive() && playersNearby(point.location(), this.region.spawnSettings().maxDistance())) {
+                this.spawnPoints.remove(point);
                 result.add(point);
+
                 if (result.size() == size) break;
             }
         }
+
         return result;
     }
 
     public void despawnAll() {
-        spawnPoints.forEach(SpawnPoint::despawn);
+        this.spawnPoints.forEach(SpawnPoint::despawn);
     }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 DenaryDev
+ * Copyright (c) 2026 DenaryDev
  *
  * Use of this source code is governed by an MIT-style
  * license that can be found in the LICENSE file or at
@@ -7,7 +7,7 @@
  */
 package me.denarydev.regionmobs;
 
-import me.denarydev.regionmobs.command.CommandManager;
+import io.sapphiremc.lib.configurate.ConfigurateException;
 import me.denarydev.regionmobs.listener.ChunkListener;
 import me.denarydev.regionmobs.particle.ParticleManager;
 import me.denarydev.regionmobs.region.RegionManager;
@@ -15,20 +15,18 @@ import me.denarydev.regionmobs.spawn.SpawnManager;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
-import org.spongepowered.configurate.ConfigurateException;
 
 /**
  * @author DenaryDev
  * @since 1:53 12.01.2024
  */
-public class RegionMobsPlugin extends JavaPlugin {
+public final class RegionMobsPlugin extends JavaPlugin {
     private static RegionMobsPlugin instance;
 
     public static RegionMobsPlugin instance() {
         return instance;
     }
 
-    private CommandManager commandManager;
     private RegionManager regionManager;
     private ParticleManager particleManager;
     private SpawnManager spawnManager;
@@ -37,40 +35,39 @@ public class RegionMobsPlugin extends JavaPlugin {
     public void onEnable() {
         instance = this;
 
-        commandManager = new CommandManager();
-        regionManager = new RegionManager(this);
-        particleManager = new ParticleManager(this);
-        spawnManager = new SpawnManager(this);
+        this.regionManager = new RegionManager(this);
+        this.particleManager = new ParticleManager(this);
+        this.spawnManager = new SpawnManager(this);
 
         reload();
-        commandManager.registerCommands();
+
         getServer().getPluginManager().registerEvents(new ChunkListener(), this);
     }
 
     public void reload() {
         onDisable();
+
         try {
             Config.load(getDataFolder().toPath());
-            regionManager.load();
+            this.regionManager.load();
         } catch (ConfigurateException e) {
             logger().error("Failed to load settings", e);
             return;
         }
 
-        particleManager.load();
-        spawnManager.load();
+        this.particleManager.load();
+        this.spawnManager.load();
     }
 
     @Override
     public void onDisable() {
-        if (particleManager != null)
-            particleManager.unload();
-        if (spawnManager != null)
-            spawnManager.unload();
-    }
+        if (this.particleManager != null) {
+            this.particleManager.unload();
+        }
 
-    public CommandManager commandManager() {
-        return commandManager;
+        if (this.spawnManager != null) {
+            this.spawnManager.unload();
+        }
     }
 
     public RegionManager regionManager() {

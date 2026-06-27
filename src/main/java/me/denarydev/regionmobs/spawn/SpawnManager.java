@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 DenaryDev
+ * Copyright (c) 2026 DenaryDev
  *
  * Use of this source code is governed by an MIT-style
  * license that can be found in the LICENSE file or at
@@ -7,8 +7,8 @@
  */
 package me.denarydev.regionmobs.spawn;
 
-import me.denarydev.regionmobs.RegionMobsPlugin;
 import me.denarydev.regionmobs.Config;
+import me.denarydev.regionmobs.RegionMobsPlugin;
 import me.denarydev.regionmobs.region.Region;
 import org.bukkit.Bukkit;
 import org.bukkit.scheduler.BukkitTask;
@@ -20,7 +20,7 @@ import java.util.List;
  * @author DenaryDev
  * @since 5:29 17.01.2024
  */
-public class SpawnManager {
+public final class SpawnManager {
     private final RegionMobsPlugin plugin;
     private final List<SpawnRegion> regions = new ArrayList<>();
     private BukkitTask task;
@@ -31,22 +31,25 @@ public class SpawnManager {
 
     public void load() {
         this.regions.clear();
-        this.regions.addAll(plugin.regionManager().regions().values().stream().filter(Region::enabled).map(SpawnRegion::new).toList());
-        task = Bukkit.getScheduler().runTaskTimer(plugin, () ->
-            new ArrayList<>(regions).forEach(SpawnRegion::spawnMobs), 20L, Config.settings().mobSpawn.interval);
+        this.regions.addAll(this.plugin.regionManager().regions().values().stream().filter(Region::enabled).map(SpawnRegion::new).toList());
+
+        this.task = Bukkit.getScheduler().runTaskTimer(this.plugin, () ->
+            new ArrayList<>(this.regions).forEach(SpawnRegion::spawnMobs), 20L, Config.settings().mobSpawn.interval);
     }
 
     public void unload() {
-        if (task != null)
-            task.cancel();
-        regions.forEach(SpawnRegion::despawnAll);
+        if (this.task != null) {
+            this.task.cancel();
+        }
+
+        this.regions.forEach(SpawnRegion::despawnAll);
     }
 
     public void addRegion(Region region) {
-        if (region.enabled()) regions.add(new SpawnRegion(region));
+        if (region.enabled()) this.regions.add(new SpawnRegion(region));
     }
 
     public void removeRegion(String id) {
-        regions.removeIf(spawnRegion -> spawnRegion.id().equals(id));
+        this.regions.removeIf(spawnRegion -> spawnRegion.id().equals(id));
     }
 }

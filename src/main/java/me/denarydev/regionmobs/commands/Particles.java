@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 DenaryDev
+ * Copyright (c) 2026 DenaryDev
  *
  * Use of this source code is governed by an MIT-style
  * license that can be found in the LICENSE file or at
@@ -8,14 +8,17 @@
 package me.denarydev.regionmobs.commands;
 
 import com.mojang.brigadier.builder.ArgumentBuilder;
+import io.papermc.paper.command.brigadier.CommandSourceStack;
 import me.denarydev.regionmobs.Config;
-import net.minecraft.commands.CommandSourceStack;
+import me.denarydev.regionmobs.RegionMobsPlugin;
+import me.denarydev.regionmobs.particle.ParticleManager;
+import org.bukkit.entity.Player;
 
 /**
  * @author DenaryDev
  * @since 22:38 15.01.2024
  */
-public class Particles extends Command {
+public final class Particles extends Command {
     @Override
     public String name() {
         return "particles";
@@ -29,17 +32,17 @@ public class Particles extends Command {
     @Override
     public ArgumentBuilder<CommandSourceStack, ?> command() {
         return root().executes(context -> {
-            final var source = context.getSource();
+            final CommandSourceStack source = context.getSource();
 
-            final var serverPlayer = serverPlayer(source);
-            if (serverPlayer == null) return 1;
-            final var player = serverPlayer.getBukkitEntity();
+            final Player player = player(source);
+            if (player == null) return 1;
 
-            if (plugin.particleManager().shown(player)) {
-                plugin.particleManager().hide(player);
+            final ParticleManager particleManager = RegionMobsPlugin.instance().particleManager();
+            if (particleManager.shown(player)) {
+                particleManager.hide(player);
                 sendMessage(source, Config.messages().commands.particles.hidden);
             } else {
-                plugin.particleManager().show(player);
+                particleManager.show(player);
                 sendMessage(source, Config.messages().commands.particles.shown);
             }
 

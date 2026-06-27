@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 DenaryDev
+ * Copyright (c) 2026 DenaryDev
  *
  * Use of this source code is governed by an MIT-style
  * license that can be found in the LICENSE file or at
@@ -7,16 +7,16 @@
  */
 package me.denarydev.regionmobs.region;
 
+import io.sapphiremc.lib.configurate.CommentedConfigurationNode;
+import io.sapphiremc.lib.configurate.ConfigurateException;
+import io.sapphiremc.lib.configurate.objectmapping.ConfigSerializable;
+import io.sapphiremc.lib.configurate.objectmapping.meta.Comment;
+import io.sapphiremc.lib.configurate.yaml.YamlConfigurationLoader;
+import me.denarydev.crystal.paper.utils.LocationUtils;
 import me.denarydev.regionmobs.Config;
 import me.denarydev.regionmobs.RegionMobsPlugin;
-import me.denarydev.regionmobs.utils.Utils;
 import org.bukkit.Location;
 import org.bukkit.entity.EntityType;
-import org.spongepowered.configurate.CommentedConfigurationNode;
-import org.spongepowered.configurate.ConfigurateException;
-import org.spongepowered.configurate.hocon.HoconConfigurationLoader;
-import org.spongepowered.configurate.objectmapping.ConfigSerializable;
-import org.spongepowered.configurate.objectmapping.meta.Comment;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -28,9 +28,9 @@ import java.util.stream.Collectors;
  * @since 19:52 16.01.2024
  */
 @ConfigSerializable
-public class Region {
+public final class Region {
     private transient String id;
-    private transient HoconConfigurationLoader loader;
+    private transient YamlConfigurationLoader loader;
     private transient CommentedConfigurationNode node;
 
     @Comment("Активирован ли регион")
@@ -72,7 +72,7 @@ public class Region {
         }
     }
 
-    boolean set(String id, HoconConfigurationLoader loader, CommentedConfigurationNode node) {
+    boolean set(String id, YamlConfigurationLoader loader, CommentedConfigurationNode node) {
         this.id = id;
         this.loader = loader;
         this.node = node;
@@ -80,23 +80,25 @@ public class Region {
     }
 
     private boolean update() {
-        if (enabled && incomplete()) {
-            enabled = false;
-            RegionMobsPlugin.instance().logger().warn("Region " + id + " is not completed, disabling...");
+        if (this.enabled && incomplete()) {
+            this.enabled = false;
+            RegionMobsPlugin.instance().logger().warn("Region {} is not completed, disabling...", this.id);
         }
-        if (!points.isEmpty()) {
-            points = points.stream().map(Utils::centerLocation).collect(Collectors.toList());
+
+        if (!this.points.isEmpty()) {
+            this.points = this.points.stream().map(LocationUtils::centerLocation).collect(Collectors.toList());
         }
+
         return save();
     }
 
     public boolean save() {
         try {
-            node.set(this);
-            loader.save(node);
+            this.node.set(this);
+            this.loader.save(this.node);
             return true;
         } catch (ConfigurateException e) {
-            RegionMobsPlugin.instance().logger().error("Error while saving region " + id, e);
+            RegionMobsPlugin.instance().logger().error("Error while saving region {}", this.id, e);
         }
         return false;
     }
@@ -106,7 +108,7 @@ public class Region {
     }
 
     public boolean incomplete() {
-        return points.isEmpty() || mobs.isEmpty();
+        return this.points.isEmpty() || this.mobs.isEmpty();
     }
 
     public boolean enabled() {
@@ -118,7 +120,7 @@ public class Region {
     }
 
     public List<Location> points() {
-        return Collections.unmodifiableList(points);
+        return Collections.unmodifiableList(this.points);
     }
 
     public boolean hasPoint(Location point) {
@@ -134,7 +136,7 @@ public class Region {
     }
 
     public List<EntityType> mobs() {
-        return Collections.unmodifiableList(mobs);
+        return Collections.unmodifiableList(this.mobs);
     }
 
     public boolean hasMob(EntityType mob) {

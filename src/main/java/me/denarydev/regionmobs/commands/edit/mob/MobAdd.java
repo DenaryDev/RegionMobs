@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 DenaryDev
+ * Copyright (c) 2026 DenaryDev
  *
  * Use of this source code is governed by an MIT-style
  * license that can be found in the LICENSE file or at
@@ -8,10 +8,11 @@
 package me.denarydev.regionmobs.commands.edit.mob;
 
 import com.mojang.brigadier.builder.ArgumentBuilder;
+import io.papermc.paper.command.brigadier.CommandSourceStack;
+import me.denarydev.crystal.paper.command.SharedSuggestionProvider;
 import me.denarydev.regionmobs.Config;
+import me.denarydev.regionmobs.region.Region;
 import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
-import net.minecraft.commands.CommandSourceStack;
-import net.minecraft.commands.SharedSuggestionProvider;
 import org.bukkit.entity.EntityType;
 
 import java.util.Arrays;
@@ -22,7 +23,7 @@ import static com.mojang.brigadier.arguments.StringArgumentType.word;
  * @author DenaryDev
  * @since 23:47 15.01.2024
  */
-public class MobAdd extends Mob {
+public final class MobAdd extends Mob {
     @Override
     protected String subName() {
         return "add";
@@ -46,11 +47,11 @@ public class MobAdd extends Mob {
                 .map(String::toLowerCase)
                 .toList(), builder)))
             .executes(context -> {
-                final var source = context.getSource();
+                final CommandSourceStack source = context.getSource();
 
-                final var region = region(context);
+                final Region region = region(context);
                 if (region == null) return 1;
-                final var entity = entityType(context);
+                final EntityType entity = entityType(context);
                 if (entity == null) return 1;
 
                 if (region.hasMob(entity)) {
@@ -58,6 +59,7 @@ public class MobAdd extends Mob {
                         Placeholder.unparsed("id", region.id()),
                         Placeholder.unparsed("type", entity.name().toLowerCase())
                     );
+
                     return 1;
                 }
 

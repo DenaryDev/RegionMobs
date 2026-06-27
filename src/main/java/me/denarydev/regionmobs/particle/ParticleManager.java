@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 DenaryDev
+ * Copyright (c) 2026 DenaryDev
  *
  * Use of this source code is governed by an MIT-style
  * license that can be found in the LICENSE file or at
@@ -8,22 +8,27 @@
 package me.denarydev.regionmobs.particle;
 
 import com.destroystokyo.paper.ParticleBuilder;
-import me.denarydev.regionmobs.RegionMobsPlugin;
 import me.denarydev.regionmobs.Config;
+import me.denarydev.regionmobs.RegionMobsPlugin;
+import me.denarydev.regionmobs.region.Region;
 import org.bukkit.Bukkit;
+import org.bukkit.Location;
+import org.bukkit.Particle;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitTask;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 /**
  * @author DenaryDev
  * @since 4:30 17.01.2024
  */
-public class ParticleManager {
+public final class ParticleManager {
     private final RegionMobsPlugin plugin;
     private final List<Player> shown = new ArrayList<>();
+
     private BukkitTask task;
 
     public ParticleManager(RegionMobsPlugin plugin) {
@@ -35,21 +40,23 @@ public class ParticleManager {
     }
 
     public void unload() {
-        if (task != null)
+        if (task != null) {
             task.cancel();
+        }
     }
 
     private void pointsParticleTask() {
-        final var regions = plugin.regionManager().regions().values();
+        final Collection<Region> regions = plugin.regionManager().regions().values();
         if (shown.isEmpty()) return;
-        final var particle = Config.settings().particles.type;
+        final Particle particle = Config.settings().particles.type;
 
-        for (final var region : regions) {
-            final var points = region.points();
-            for (final var point : points) {
-                final var nearbyPlayers = shown.stream()
+        for (final Region region : regions) {
+            final List<Location> points = region.points();
+            for (final Location point : points) {
+                final List<Player> nearbyPlayers = shown.stream()
                     .filter(player -> player.getLocation().distance(point) <= Config.settings().mobSpawn.maxDistance)
                     .toList();
+
                 if (!nearbyPlayers.isEmpty()) {
                     Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> new ParticleBuilder(particle)
                         .location(point.toCenterLocation())

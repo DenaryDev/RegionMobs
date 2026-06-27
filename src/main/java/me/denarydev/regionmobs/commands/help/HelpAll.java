@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 DenaryDev
+ * Copyright (c) 2026 DenaryDev
  *
  * Use of this source code is governed by an MIT-style
  * license that can be found in the LICENSE file or at
@@ -8,8 +8,9 @@
 package me.denarydev.regionmobs.commands.help;
 
 import com.mojang.brigadier.builder.ArgumentBuilder;
+import io.papermc.paper.command.brigadier.CommandSourceStack;
 import me.denarydev.regionmobs.Config;
-import net.minecraft.commands.CommandSourceStack;
+import me.denarydev.regionmobs.command.CommandManager;
 
 import static com.mojang.brigadier.arguments.IntegerArgumentType.integer;
 
@@ -17,7 +18,7 @@ import static com.mojang.brigadier.arguments.IntegerArgumentType.integer;
  * @author DenaryDev
  * @since 23:13 12.01.2024
  */
-public class HelpAll extends Help {
+public final class HelpAll extends Help {
 
     @Override
     public String name() {
@@ -36,15 +37,15 @@ public class HelpAll extends Help {
 
     @Override
     public ArgumentBuilder<CommandSourceStack, ?> command() {
-        final var subCommands = plugin.commandManager().commands();
         return root()
             .executes(context -> {
-                sendHelp(context.getSource(), context.getInput().replace(" help", ""), subCommands, 1);
+                sendHelp(context.getSource(), context.getInput().replace(" help", ""), CommandManager.commands(), 1);
                 return 1;
             }).then(argument("page", integer())
                 .executes(context -> {
-                    final var page = context.getArgument("page", Integer.class);
-                    sendHelp(context.getSource(), context.getInput().replace(" help " + page, ""), subCommands, page);
+                    final int page = context.getArgument("page", Integer.class);
+                    sendHelp(context.getSource(), context.getInput().replace(" help " + page, ""), CommandManager.commands(), page);
+
                     return 1;
                 }));
     }

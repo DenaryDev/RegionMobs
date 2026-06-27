@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 DenaryDev
+ * Copyright (c) 2026 DenaryDev
  *
  * Use of this source code is governed by an MIT-style
  * license that can be found in the LICENSE file or at
@@ -8,9 +8,11 @@
 package me.denarydev.regionmobs.commands;
 
 import com.mojang.brigadier.builder.ArgumentBuilder;
+import io.papermc.paper.command.brigadier.CommandSourceStack;
 import me.denarydev.regionmobs.Config;
+import me.denarydev.regionmobs.RegionMobsPlugin;
+import me.denarydev.regionmobs.region.Region;
 import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
-import net.minecraft.commands.CommandSourceStack;
 
 import static com.mojang.brigadier.arguments.StringArgumentType.word;
 
@@ -18,7 +20,7 @@ import static com.mojang.brigadier.arguments.StringArgumentType.word;
  * @author DenaryDev
  * @since 23:12 15.01.2024
  */
-public class Disable extends Command {
+public final class Disable extends Command {
     @Override
     public String name() {
         return "disable";
@@ -39,8 +41,8 @@ public class Disable extends Command {
         return root().then(argument("id", word())
             .suggests((ctx, builder) -> super.suggestRegion(builder))
             .executes(context -> {
-                final var source = context.getSource();
-                final var region = region(context);
+                final CommandSourceStack source = context.getSource();
+                final Region region = region(context);
                 if (region == null) return 1;
 
                 if (!region.enabled()) {
@@ -50,7 +52,8 @@ public class Disable extends Command {
 
                 region.enabled(false);
                 if (saveFailed(source, region)) return 1;
-                plugin.spawnManager().removeRegion(region.id());
+
+                RegionMobsPlugin.instance().spawnManager().removeRegion(region.id());
 
                 sendMessage(source, Config.messages().commands.disable.success, Placeholder.unparsed("id", region.id()));
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 DenaryDev
+ * Copyright (c) 2026 DenaryDev
  *
  * Use of this source code is governed by an MIT-style
  * license that can be found in the LICENSE file or at
@@ -8,15 +8,15 @@
 package me.denarydev.regionmobs.commands;
 
 import com.mojang.brigadier.builder.ArgumentBuilder;
+import io.papermc.paper.command.brigadier.CommandSourceStack;
 import me.denarydev.regionmobs.Config;
 import me.denarydev.regionmobs.RegionMobsPlugin;
-import net.minecraft.commands.CommandSourceStack;
 
 /**
  * @author DenaryDev
  * @since 22:43 12.01.2024
  */
-public class Reload extends Command {
+public final class Reload extends Command {
     @Override
     public String name() {
         return "reload";
@@ -33,6 +33,7 @@ public class Reload extends Command {
             .executes(context -> {
                 RegionMobsPlugin.instance().reload();
                 sendMessage(context.getSource(), Config.messages().commands.reload.success);
+
                 return 1;
             });
     }

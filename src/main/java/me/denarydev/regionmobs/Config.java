@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 DenaryDev
+ * Copyright (c) 2026 DenaryDev
  *
  * Use of this source code is governed by an MIT-style
  * license that can be found in the LICENSE file or at
@@ -7,12 +7,14 @@
  */
 package me.denarydev.regionmobs;
 
-import me.denarydev.crystal.config.BukkitConfigs;
-import me.denarydev.crystal.config.CrystalConfigs;
+import io.sapphiremc.lib.configurate.ConfigurateException;
+import io.sapphiremc.lib.configurate.objectmapping.ConfigSerializable;
+import io.sapphiremc.lib.configurate.objectmapping.meta.Comment;
+import io.sapphiremc.lib.configurate.serialize.TypeSerializerCollection;
+import me.denarydev.crystal.config.ConfigLoaders;
+import me.denarydev.crystal.config.ConfigMapper;
+import me.denarydev.crystal.paper.configurate.PaperSerializers;
 import org.bukkit.Particle;
-import org.spongepowered.configurate.ConfigurateException;
-import org.spongepowered.configurate.objectmapping.ConfigSerializable;
-import org.spongepowered.configurate.objectmapping.meta.Comment;
 
 import java.nio.file.Path;
 
@@ -20,7 +22,7 @@ import java.nio.file.Path;
  * @author DenaryDev
  * @since 1:53 12.01.2024
  */
-public class Config {
+public final class Config {
 
     private static Settings settings;
     private static Messages messages;
@@ -34,9 +36,9 @@ public class Config {
     }
 
     public static void load(Path path) throws ConfigurateException {
-        final var serializers = BukkitConfigs.serializers();
-        settings = CrystalConfigs.loadConfig(path.resolve("settings.conf"), serializers, Settings.class, false);
-        messages = CrystalConfigs.loadConfig(path.resolve("messages.conf"), Messages.class, false);
+        final TypeSerializerCollection serializers = PaperSerializers.get();
+        settings = ConfigMapper.load(ConfigLoaders.yaml(path.resolve("settings.yml"), serializers), Settings.class);
+        messages = ConfigMapper.load(ConfigLoaders.yaml(path.resolve("messages.yml")), Messages.class);
     }
 
     @ConfigSerializable
@@ -64,10 +66,8 @@ public class Config {
 
         @ConfigSerializable
         public static final class Particles {
-            @Comment("""
-                Тип частиц, все доступные типы: https://jd.papermc.io/paper/1.20/org/bukkit/Particle.html
-                """)
-            public Particle type = Particle.VILLAGER_HAPPY;
+            @Comment("Тип частиц, все доступные типы: https://jd.papermc.io/paper/26.1.2/org/bukkit/Particle.html")
+            public Particle type = Particle.HAPPY_VILLAGER;
             @Comment("Интервал между попытками создания частиц")
             public int interval = 10;
             @Comment("Количество частиц, появляющихся над блоком за одну попытку")
@@ -147,13 +147,13 @@ public class Config {
             public static final class About {
                 public String info = "Показывает информацию о плагине";
                 public String success = """
-                <prefix>Информация о плагине:
-                <white>Версия: <yellow><version>
-                <white>Платформа: <yellow><platform>
-                <white>Создатель: <yellow><author>
-                <white>Дата и время сборки: <yellow><build_time>
-                <white>Информация о сборке: <yellow>git-<commit> <white>в ветке <yellow><branch>
-                """;
+                    <prefix>Информация о плагине:
+                    <white>Версия: <yellow><version>
+                    <white>Платформа: <yellow><platform>
+                    <white>Создатель: <yellow><author>
+                    <white>Дата и время сборки: <yellow><build_time>
+                    <white>Информация о сборке: <yellow>git-<commit> <white>в ветке <yellow><branch>
+                    """;
             }
 
             @ConfigSerializable
@@ -165,7 +165,8 @@ public class Config {
             @ConfigSerializable
             public static final class Create {
                 public String info = "Создаёт область появления мобов";
-                public String success = "<prefix>Вы создали область <yellow><id><white>! Команды для настройки: <yellow><click><white>, после настройки включите область командой <yellow>/rmobs enable <id><white>.";
+                public String success = "<prefix>Вы создали область <yellow><id><white>! Команды для настройки: <yellow><click><white>, после настройки включите область командой" +
+                    " <yellow>/rmobs enable <id><white>.";
                 public String error = "<prefix>Не удалось создать область из-за непредвиденной ошибки, в консоли больше информации об этом.";
                 public String exists = "<prefix>Область с таким ID уже существует.";
                 public String click = "<u>/rmobs edit <id></u>";
@@ -184,7 +185,8 @@ public class Config {
                 public String info = "Включает появление мобов в области";
                 public String success = "<prefix>Появление мобов в области <yellow><id><white> включено.";
                 public String already = "<prefix>В области <yellow><id><white> уже включено появление мобов.";
-                public String incomplete = "<prefix>Чтобы включить появление мобов, нужно полностью настроить область, используйте <yellow>/rmobs edit <id><white> для просмотра команд настройки области.";
+                public String incomplete = "<prefix>Чтобы включить появление мобов, нужно полностью настроить область, используйте <yellow>/rmobs edit <id><white> для просмотра " +
+                    "команд настройки области.";
             }
 
             @ConfigSerializable
@@ -215,14 +217,16 @@ public class Config {
                     @ConfigSerializable
                     public static final class Add {
                         public String info = "Добавляет точку появления мобов на вашей позиции";
-                        public String success = "<prefix>Точка появления мобов создана на вашей позиции (<yellow><x><white>, <yellow><y><white>, <yellow><z><white>) в области <yellow><id><white>.";
+                        public String success = "<prefix>Точка появления мобов создана на вашей позиции (<yellow><x><white>, <yellow><y><white>, <yellow><z><white>) в области " +
+                            "<yellow><id><white>.";
                         public String already = "<prefix>На вашей позиции уже существует точка появления мобов в этой области.";
                     }
 
                     @ConfigSerializable
                     public static final class Remove {
                         public String info = "Удаляет точку появления мобов на вашей позиции";
-                        public String success = "<prefix>Точка появления мобов удалена на вашей позиции (<yellow><x><white>, <yellow><y><white>, <yellow><z><white>) из области <yellow><id><white>.";
+                        public String success = "<prefix>Точка появления мобов удалена на вашей позиции (<yellow><x><white>, <yellow><y><white>, <yellow><z><white>) из области " +
+                            "<yellow><id><white>.";
                         public String notFound = "<prefix>На вашей позиции нет точки появления мобов в этой области.";
                     }
                 }

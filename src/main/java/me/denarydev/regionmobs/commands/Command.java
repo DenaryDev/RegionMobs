@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 DenaryDev
+ * Copyright (c) 2026 DenaryDev
  *
  * Use of this source code is governed by an MIT-style
  * license that can be found in the LICENSE file or at
@@ -14,16 +14,16 @@ import com.mojang.brigadier.builder.RequiredArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.suggestion.Suggestions;
 import com.mojang.brigadier.suggestion.SuggestionsBuilder;
+import io.papermc.paper.command.brigadier.CommandSourceStack;
+import me.denarydev.crystal.paper.command.SharedSuggestionProvider;
 import me.denarydev.regionmobs.Config;
-import me.denarydev.regionmobs.region.Region;
 import me.denarydev.regionmobs.RegionMobsPlugin;
+import me.denarydev.regionmobs.region.Region;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
 import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver;
-import net.minecraft.commands.CommandSourceStack;
-import net.minecraft.commands.SharedSuggestionProvider;
-import net.minecraft.server.level.ServerPlayer;
+import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -31,6 +31,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 
 /**
@@ -38,8 +39,6 @@ import java.util.concurrent.CompletableFuture;
  * @since 21:15 12.01.2024
  */
 public abstract class Command {
-
-    protected final RegionMobsPlugin plugin = RegionMobsPlugin.instance();
 
     public abstract String name();
 
@@ -82,15 +81,16 @@ public abstract class Command {
 
     protected boolean checkPermission(CommandSourceStack source) {
         return permission().isEmpty()
-            || source.getBukkitSender().hasPermission("regionmobs.admin")
-            || source.getBukkitSender().hasPermission(permission());
+            || source.getSender().hasPermission("regionmobs.admin")
+            || source.getSender().hasPermission(permission());
     }
 
     protected void sendMessage(CommandSourceStack source, String msg, TagResolver... tags) {
-        final var prefixAndTags = new ArrayList<TagResolver>();
+        final List<TagResolver> prefixAndTags = new ArrayList<>();
         prefixAndTags.add(Placeholder.parsed("prefix", Config.messages().replacements.prefix));
         prefixAndTags.addAll(Arrays.stream(tags).toList());
-        source.getBukkitSender().sendMessage(miniMessage(msg, prefixAndTags.toArray(new TagResolver[0])));
+
+        source.getSender().sendMessage(miniMessage(msg, prefixAndTags.toArray(new TagResolver[0])));
     }
 
     @NotNull
@@ -99,21 +99,23 @@ public abstract class Command {
     }
 
     @Nullable
-    protected ServerPlayer serverPlayer(CommandSourceStack source) {
-        if (!source.isPlayer()) {
+    protected Player player(CommandSourceStack source) {
+        if (!(source.getSender() instanceof Player player)) {
             sendMessage(source, Config.messages().errors.notPlayer);
             return null;
         }
-        return source.getPlayer();
+
+        return player;
     }
 
     @Nullable
     protected Region region(CommandContext<CommandSourceStack> context) {
-        final var region = plugin.regionManager().regionById(string(context, "id").toLowerCase());
+        final Region region = RegionMobsPlugin.instance().regionManager().regionById(string(context, "id").toLowerCase());
         if (region == null) {
             sendMessage(context.getSource(), Config.messages().errors.region.notFound);
             return null;
         }
+
         return region;
     }
 
@@ -123,7 +125,8 @@ public abstract class Command {
     }
 
     protected CompletableFuture<Suggestions> suggestRegion(SuggestionsBuilder builder) {
-        final var regions = plugin.regionManager().regions().keySet();
+        final Set<String> regions = RegionMobsPlugin.instance().regionManager().regions().keySet();
+
         return SharedSuggestionProvider.suggest(regions, builder);
     }
 
@@ -132,6 +135,7 @@ public abstract class Command {
             sendMessage(source, Config.messages().errors.region.saveError);
             return true;
         }
+
         return false;
     }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 DenaryDev
+ * Copyright (c) 2026 DenaryDev
  *
  * Use of this source code is governed by an MIT-style
  * license that can be found in the LICENSE file or at
@@ -8,10 +8,12 @@
 package me.denarydev.regionmobs.commands;
 
 import com.mojang.brigadier.builder.ArgumentBuilder;
+import io.papermc.paper.command.brigadier.CommandSourceStack;
 import me.denarydev.regionmobs.Config;
+import me.denarydev.regionmobs.RegionMobsPlugin;
+import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.event.ClickEvent;
 import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
-import net.minecraft.commands.CommandSourceStack;
 
 import static com.mojang.brigadier.arguments.StringArgumentType.word;
 
@@ -19,7 +21,7 @@ import static com.mojang.brigadier.arguments.StringArgumentType.word;
  * @author DenaryDev
  * @since 2:42 13.01.2024
  */
-public class Create extends Command {
+public final class Create extends Command {
 
     @Override
     public String name() {
@@ -40,24 +42,24 @@ public class Create extends Command {
     public ArgumentBuilder<CommandSourceStack, ?> command() {
         return root().then(argument("id", word())
             .executes(context -> {
-                final var source = context.getSource();
+                final CommandSourceStack source = context.getSource();
+                if (player(source) == null) return 1;
 
-                if (serverPlayer(source) == null) return 1;
-
-                final var id = string(context, "id").toLowerCase();
-                if (plugin.regionManager().hasRegion(id)) {
+                final String id = string(context, "id").toLowerCase();
+                if (RegionMobsPlugin.instance().regionManager().hasRegion(id)) {
                     sendMessage(source, Config.messages().commands.create.exists);
                     return 1;
                 }
 
-                if (!plugin.regionManager().createRegion(id)) {
+                if (!RegionMobsPlugin.instance().regionManager().createRegion(id)) {
                     sendMessage(source, Config.messages().commands.create.error);
                     return 1;
                 }
 
-                final var click = miniMessage(Config.messages().commands.create.click, Placeholder.unparsed("id", id))
+                final Component click = miniMessage(Config.messages().commands.create.click, Placeholder.unparsed("id", id))
                     .hoverEvent(miniMessage(Config.messages().commands.create.clickHover))
-                    .clickEvent(ClickEvent.clickEvent(ClickEvent.Action.RUN_COMMAND, "/rmobs edit " + id));
+                    .clickEvent(ClickEvent.clickEvent(ClickEvent.Action.RUN_COMMAND, ClickEvent.Payload.string("/rmobs edit " + id)));
+
                 sendMessage(source, Config.messages().commands.create.success,
                     Placeholder.unparsed("id", id),
                     Placeholder.component("click", click)

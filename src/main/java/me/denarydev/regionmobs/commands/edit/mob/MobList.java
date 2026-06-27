@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 DenaryDev
+ * Copyright (c) 2026 DenaryDev
  *
  * Use of this source code is governed by an MIT-style
  * license that can be found in the LICENSE file or at
@@ -8,15 +8,19 @@
 package me.denarydev.regionmobs.commands.edit.mob;
 
 import com.mojang.brigadier.builder.ArgumentBuilder;
+import io.papermc.paper.command.brigadier.CommandSourceStack;
 import me.denarydev.regionmobs.Config;
+import me.denarydev.regionmobs.region.Region;
 import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
-import net.minecraft.commands.CommandSourceStack;
+import org.bukkit.entity.EntityType;
+
+import java.util.List;
 
 /**
  * @author DenaryDev
  * @since 17:32 16.01.2024
  */
-public class MobList extends Mob {
+public final class MobList extends Mob {
     @Override
     protected String subName() {
         return "list";
@@ -30,12 +34,12 @@ public class MobList extends Mob {
     @Override
     protected ArgumentBuilder<CommandSourceStack, ?> subCommand() {
         return root().executes(context -> {
-            final var source = context.getSource();
+            final CommandSourceStack source = context.getSource();
 
-            final var region = region(context);
+            final Region region = region(context);
             if (region == null) return 1;
 
-            final var mobs = region.mobs();
+            final List<EntityType> mobs = region.mobs();
             if (mobs.isEmpty()) {
                 sendMessage(source, Config.messages().commands.edit.mob.list.empty, Placeholder.unparsed("id", region.id()));
                 return 1;

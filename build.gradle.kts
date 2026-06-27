@@ -1,70 +1,75 @@
-import net.minecrell.pluginyml.bukkit.BukkitPluginDescription
+import net.minecrell.pluginyml.paper.PaperPluginDescription
 import xyz.jpenilla.runpaper.task.RunServer
 
 plugins {
     id("java")
     id("idea")
-    id("xyz.jpenilla.run-paper") version "2.2.3"
-    id("net.minecrell.plugin-yml.paper") version "0.6.0"
-    id("io.papermc.paperweight.userdev") version "1.5.13"
-    id("org.ajoberstar.grgit") version "5.2.2"
-    id("net.kyori.blossom") version "2.1.0"
+    id("com.diffplug.spotless") version "8.7.0"
+    id("xyz.jpenilla.run-paper") version "3.0.2"
+    id("de.eldoria.plugin-yml.paper") version "0.9.0"
+    id("com.github.gmazzo.buildconfig") version "6.0.10"
+    id("org.ajoberstar.grgit") version "5.3.2"
 }
 
 group = "me.denarydev"
-version = "1.20.2-v1"
+version = "1.0.0"
 
 repositories {
     mavenCentral()
-    maven("https://repo.papermc.io/repository/maven-public/")
-    maven("https://repo.activmine.ru/public/")
+    maven("https://repo.papermc.io/repository/maven-public/") { name = "PaperMC" }
+    maven("https://repo.prostocraft.ru/private/") {
+        name = "prostocraft"
+        credentials(PasswordCredentials::class)
+    }
 }
 
 dependencies {
-    paperweight.paperDevBundle("1.20.2-R0.1-SNAPSHOT")
+    compileOnly("io.papermc.paper:paper-api:26.1.2.build.+")
 
-    val crystalVersion = "2.1.1"
-    library("me.denarydev.crystal.paper:utils:$crystalVersion")
-    library("me.denarydev.crystal.paper:serializers:$crystalVersion")
-    library("me.denarydev.crystal.shared:config:$crystalVersion")
+    val crystalVersion = "3.0.build.+"
+    library("me.denarydev.crystal:crystal-paper:$crystalVersion")
 }
 
 java {
     toolchain {
-        languageVersion.set(JavaLanguageVersion.of(17))
+        languageVersion = JavaLanguageVersion.of(25)
     }
 }
 
 paper {
+    author = "DenaryDev"
+
     main = "me.denarydev.regionmobs.RegionMobsPlugin"
-    loader = "me.denarydev.regionmobs.loader.PluginLibrariesLoader"
+    bootstrapper = "me.denarydev.regionmobs.RegionMobsBootstrap"
 
-    generateLibrariesJson = true
+    apiVersion = "26.1"
 
-    apiVersion = "1.20"
-
-    authors = listOf("DenaryDev")
-
-    defaultPermission = BukkitPluginDescription.Permission.Default.OP
-
-    permissions {
-        register("regionmobs.admin") {
-            description = "Admin permission"
+    serverDependencies {
+        register("Crystal") {
+            required = true
+            load = PaperPluginDescription.RelativeLoadOrder.BEFORE
         }
     }
 }
 
-sourceSets {
-    main {
-        blossom {
-            javaSources {
-                property("version", rootProject.version.toString())
-                property("build_time", System.currentTimeMillis().toString())
-                property("git_branch", grgit.branch.current().name)
-                property("git_commit", shortCommit())
-            }
-        }
+spotless {
+    java {
+        target("**/me/denarydev/regionmobs/**")
+
+        licenseHeaderFile(rootProject.file("HEADER"))
+
+        trimTrailingWhitespace()
+        leadingTabsToSpaces(4)
+        endWithNewline()
     }
+}
+
+buildConfig {
+    packageName("me.denarydev.regionmobs")
+    buildConfigField("String", "VERSION", "\"${project.version}\"")
+    buildConfigField("String", "BUILD_TIME", "\"${System.currentTimeMillis()}\"")
+    buildConfigField("String", "GIT_BRANCH", "\"${grgit.branch.current().name}\"")
+    buildConfigField("String", "GIT_COMMIT", "\"${shortCommit()}\"")
 }
 
 fun shortCommit(): String {
@@ -74,8 +79,18 @@ fun shortCommit(): String {
 }
 
 tasks {
-    compileJava {
+    withType<JavaCompile>().configureEach {
         options.encoding = Charsets.UTF_8.name()
+        options.release = 25
+    }
+
+    withType<ProcessResources>().configureEach {
+        filteringCharset = Charsets.UTF_8.name()
+    }
+
+    compileJava {
+        dependsOn("spotlessApply")
+
         options.compilerArgs.addAll(
             listOf(
                 "-parameters",
@@ -88,24 +103,11 @@ tasks {
         options.isFork = true
     }
 
-    assemble {
-        dependsOn(reobfJar)
-    }
-
-    processResources {
-        filteringCharset = Charsets.UTF_8.name()
-    }
-
     withType<RunServer>().configureEach {
-        minecraftVersion("1.20.2")
-        val file = projectDir.resolve("run/server.jar") // Check for a custom server.jar file
-        if (file.exists()) serverJar(file)
+        minecraftVersion("26.1.2")
+        runDirectory(rootProject.projectDir.resolve("run"))
 
-        // See https://github.com/jpenilla/run-task/wiki/Basic-Usage#downloading-plugins for more info
-        downloadPlugins {
-            url("https://download.luckperms.net/1529/bukkit/loader/LuckPerms-Bukkit-5.4.116.jar")
-            url("https://ci.athion.net/job/FastAsyncWorldEdit/637/artifact/artifacts/FastAsyncWorldEdit-Bukkit-2.8.4.jar")
-            url("https://ci.lucko.me/job/spark/400/artifact/spark-bukkit/build/libs/spark-1.10.59-bukkit.jar")
-        }
+        val file = rootProject.projectDir.resolve("run/server.jar")
+        if (file.exists()) serverJar(file)
     }
 }

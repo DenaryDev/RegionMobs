@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 DenaryDev
+ * Copyright (c) 2026 DenaryDev
  *
  * Use of this source code is governed by an MIT-style
  * license that can be found in the LICENSE file or at
@@ -8,10 +8,10 @@
 package me.denarydev.regionmobs.commands.edit.mob;
 
 import com.mojang.brigadier.context.CommandContext;
+import io.papermc.paper.command.brigadier.CommandSourceStack;
 import me.denarydev.regionmobs.Config;
 import me.denarydev.regionmobs.commands.edit.Edit;
 import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
-import net.minecraft.commands.CommandSourceStack;
 import org.bukkit.entity.EntityType;
 
 /**
@@ -26,11 +26,11 @@ public abstract class Mob extends Edit {
     }
 
     protected EntityType entityType(CommandContext<CommandSourceStack> context) {
-        final var s = string(context, "type");
+        final String type = string(context, "type");
         try {
-            return EntityType.valueOf(s.toUpperCase());
+            return EntityType.valueOf(type.toUpperCase());
         } catch (IllegalArgumentException e) {
-            sendMessage(context.getSource(), Config.messages().commands.edit.mob.unknown, Placeholder.unparsed("type", s));
+            sendMessage(context.getSource(), Config.messages().commands.edit.mob.unknown, Placeholder.unparsed("type", type));
             return null;
         }
     }

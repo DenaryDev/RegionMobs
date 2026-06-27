@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 DenaryDev
+ * Copyright (c) 2026 DenaryDev
  *
  * Use of this source code is governed by an MIT-style
  * license that can be found in the LICENSE file or at
@@ -8,9 +8,11 @@
 package me.denarydev.regionmobs.commands.edit.mob;
 
 import com.mojang.brigadier.builder.ArgumentBuilder;
+import io.papermc.paper.command.brigadier.CommandSourceStack;
 import me.denarydev.regionmobs.Config;
+import me.denarydev.regionmobs.region.Region;
 import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
-import net.minecraft.commands.CommandSourceStack;
+import org.bukkit.entity.EntityType;
 
 import static com.mojang.brigadier.arguments.StringArgumentType.word;
 
@@ -18,7 +20,7 @@ import static com.mojang.brigadier.arguments.StringArgumentType.word;
  * @author DenaryDev
  * @since 17:29 16.01.2024
  */
-public class MobRemove extends Mob {
+public final class MobRemove extends Mob {
     @Override
     protected String subName() {
         return "remove";
@@ -37,21 +39,12 @@ public class MobRemove extends Mob {
     @Override
     protected ArgumentBuilder<CommandSourceStack, ?> subCommand() {
         return root().then(argument("type", word())
-            //TODO: Suggestions error: java.lang.IllegalArgumentException: No such argument 'id' exists on this command
-            //.suggests((context, builder) -> {
-            //    final var region = region(context);
-            //    if (region == null) return Suggestions.empty();
-            //    return SharedSuggestionProvider.suggest(region.mobs().stream()
-            //        .map(EntityType::name)
-            //        .map(String::toLowerCase)
-            //        .toList(), builder);
-            //})
             .executes(context -> {
-                final var source = context.getSource();
+                final CommandSourceStack source = context.getSource();
 
-                final var region = region(context);
+                final Region region = region(context);
                 if (region == null) return 1;
-                final var entity = entityType(context);
+                final EntityType entity = entityType(context);
                 if (entity == null) return 1;
 
                 if (!region.hasMob(entity)) {
